@@ -1,0 +1,535 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <title>Gamma-Screening with HPGe detector</title>
+</head>
+<body>
+<h2 style="text-align: center;">Gamma-Screening with HPGe detector:<br>
+analysis of Vespel SP-22 sample.<br>
+</h2>
+<h4 style="text-align: center;">Oleg Kamaev<br>
+</h4>
+<hr style="width: 100%; height: 2px;">
+<h3>Abstract</h3>
+This is a template web-page that provides results of gamma-screening
+with HPGe detector (nicknamed Gopher) at Soudan Underground Laboratory for the sample of interest.
+Collected spectra are analyzed with custom Matlab-based set of scripts.
+Peak detection efficiencies are estimated from analyzing the Geant4 Monte Carlo simulation 
+output using the same set of scripts. The goal is to calculate
+radioactive
+contamination of the sample from U/Th/K/Co/Cs isotopes. <br>
+<br>
+<span style="font-weight: bold;">Sample description:</span> For this example we used Vespel
+SP-22
+sample atop the two-poly-brick pedestal.<br>
+<hr style="width: 100%; height: 2px;">
+<h3>1. Visual inspection of the spectrum<br>
+</h3>
+In Fig. 1 we plot spectrum (axis y in a log scale) for the sample
+together with the
+spectrum for the background obtained under the same conditions, but
+without the sample in the chamber. Spectra are normalized to
+keV/kg/day, so
+that they can be compared not only with other spectra obtained by
+Gopher, but with other detectors. For visualization purposes we rebin
+spectra. Spectra for different plot ranges and with axis y in a linear
+scale are shown in Fig. 2. <br>
+<br>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Fig.
+1</span>: Background spectrum and spectrum with sample inserted for the
+whole energy range.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><img
+ style="width: 900px; height: 675px;" alt=""
+ src="figs/spectra_rb4_all.png"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<script language="JavaScript"><!--
+
+loi_fit_fname='295';
+function update_fits(){
+document["loifit"].src='figs/data_loi'+loi_fit_fname+'_fit.png';
+}
+function set_loi(loiname){
+loi_fit_fname=loiname;
+update_fits();
+}
+
+mc_loi_fit_fname='295';
+function update_mc_fits(){
+document["mcloifit"].src='figs/mc_loi'+mc_loi_fit_fname+'_fit.png';
+}
+function set_mcloi(mcloiname){
+mc_loi_fit_fname=mcloiname;
+update_mc_fits();
+}
+
+rng_fname='0';
+function update_rng(){
+document["rng"].src='figs/spectra_rb4_rg'+rng_fname+'.png';
+}
+function set_rng(rngname){
+rng_fname=rngname;
+update_rng();
+}
+//--> </script>
+<table style="width: 700px;" border="1">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Plot range (keV):<br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('0');">0 - 200</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('200');">200 - 400</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('400');">400 - 600</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('600');">600 - 800</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('800');">800 - 1000</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('1000');">1000 - 1200</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('1200');">1200 - 1400</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('1400');">1400 - 1600</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('1600');">1600 - 1800</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('1800');">1800 - 2000</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('2000');">2000 - 2200</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('2200');">2200 - 2400</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('2400');">2400 - 2600</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_rng('2600');">2600 - end</a><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Fig.
+2</span>: Background spectrum and spectrum with sample inserted for
+selected ranges of interest.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a
+ href="javascript:location.href='figs/spectra_rb4_rg'+rng_fname+'.png';"><img
+ src="figs/spectra_rb4_rg0.png" name="rng"
+ style="width: 900px; height: 675px;" alt="wait"></a> </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h3>2. Fits and rate calculation</h3>
+"Standard" gamma-lines of interest include lines from isotopes in the
+U/Th
+chain, K-40, Co-60, and Cs-137. To identify additional lines
+of interest, it is helpful to eye-scan the produced Matlab figures in
+Section 1, but this will require the user to do some modifications to
+the analysis software. <br>
+<br>
+For each line of interest, we need to estimate counts in the sample
+spectra that are due to the sample contamination and also take into
+account spectrum obtained without sample in the chamber. Thus<span
+ style="font-weight: bold;"></span>, for each line of interest, we<br>
+<ol>
+  <li>scale down histogram with the largest acquisition time<br>
+  </li>
+  <li>calculate sigma for the line from the FWHM calibration curve</li>
+  <li>fit sample spectrum with Gaussian plus line fit with sigma being
+fixed</li>
+  <li>fit background spectrum with Gaussian plus line fit with sigma
+being fixed and mean taken from the fit in step 3</li>
+</ol>
+Results are shown in Fig. 3.<br>
+<br>
+<table style="width: 700px;" border="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Line of interest (keV):<br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('295');">295</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('351');">351</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('609');">609</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('1120');">1120</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('1764');">1764</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('911');">911</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('969');">969</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('238');">238</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('511');">511</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('583');">583</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('2614');">2614</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('1461');">1461</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('1173');">1173</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('1332');">1332</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_loi('661');">661</a><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Isotope:<br>
+      </td>
+      <td colspan="2" rowspan="1"
+ style="vertical-align: top; text-align: center;">Pb-214 </td>
+      <td colspan="3" rowspan="1"
+ style="vertical-align: top; text-align: center;">Bi-214 </td>
+      <td colspan="2" rowspan="1"
+ style="vertical-align: top; text-align: center;">Ac-228 </td>
+      <td style="vertical-align: top; text-align: center;">Pb-212<br>
+      </td>
+      <td colspan="3" rowspan="1"
+ style="vertical-align: top; text-align: center;">Tl-208</td>
+      <td style="vertical-align: top; text-align: center;">K-40<br>
+      </td>
+      <td colspan="2" rowspan="1"
+ style="vertical-align: top; text-align: center;">Co-60</td>
+      <td style="vertical-align: top; text-align: center;">Cs-137<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Chain:<br>
+      </td>
+      <td colspan="5" rowspan="1"
+ style="vertical-align: top; text-align: center;">U-238 chain<br>
+      </td>
+      <td colspan="6" rowspan="1"
+ style="vertical-align: top; text-align: center;">Th-232 chain<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Fig.
+3</span>: Fits to background and sample spectra for the line of
+interest.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a
+ href="javascript:location.href='figs/data_loi'+loi_fit_fname+'_fit.png';"><img
+ src="figs/data_loi295_fit.png" name="loifit"
+ style="width: 900px; height: 675px;" alt="wait"></a> </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Table 1 summarizes the following quantities for each line of interest:<br>
+S - corresponds to quantities for sample spectrum, B - for background
+spectrum;<br>
+S_t - total number of counts under the +/-w-sigma peak; I've set w=2.36;<br>
+S_b - number of background events in the +/-w-sigma peak estimated from
+fitting the wider range (I've used +/-15-sigma) near the region of
+interest;<br>
+S_b (alt) - number of background events in the +/-w-sigma peak
+estimated from the sidebands.<br>
+Similarly, for background spectrum, there are B_t, B_b, and B_b (alt).<br>
+<br>
+<span style="font-weight: bold;">Table 1:</span> Calculated number of
+total and background events for each line of interest for sample and
+background spectra.<br>
+<object type="text/html" data="TABLE_Table_1.html" height="420"
+ width="100%">
+<p>Table 1</p>
+</object>
+<br>
+Methodology for rate calculation is described in <span
+ style="font-weight: bold;">Appendix A</span>.<br>
+<span style="font-weight: bold; font-style: italic;"></span><br>
+Results are summarized in Table 2. For the upper limits, NaN means that
+UL calculation is not necessary, -999 means that UL should be
+calculated, but was not because poisson estimator is not coded yet.<span
+ style="font-weight: bold;"><br>
+<br>
+<br>
+Table 2:</span> Calculated number of signal events, background events,
+rate and rate upper limit (when applicable). <br>
+<object type="text/html" data="TABLE_Table_2.html" height="420"
+ width="100%">
+<p>Table 2</p>
+</object>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h3>3. Peak detection efficiency from Geant4-based MC<br>
+</h3>
+To calculate peak detection efficiency for each line of interest with
+taking into account sample's geometry and self-shielding, we employ
+custom
+Geant4-based MC. We simulate radioactive isotopes contaminating the
+sample and emitting corresponding gamma-rays. Simulated spectra for the
+desired number of simulated events are
+shown in Fig. 4.<br>
+<br>
+Geant4 MC: Sample (blue) on top of poly bricks (red) emit gammas (green
+lines). Same geometry as for Vespel SP-1.<br>
+<img style="width: 600px; height: 637px;" alt="" src="MC_example.png"><br>
+&nbsp;<br>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Fig.
+4</span>: MC-simulated spectra with sample inserted for the
+contamination of interest.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><img
+ style="width: 900px; height: 675px;" alt="" src="figs/mc_spectra.png"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+To calculate the number of events in the region of interest we apply
+the same method and fitting scripts as described in Section 2. We also
+smear MC with&nbsp; Gaussian using sigma for the line from the FWHM
+calibration curve. Fits are
+shown in Fig. 5. Peak detection ratio is calculated as [number of
+events in the peak]/[number of MC-simulated events]. <br>
+<br>
+<table style="width: 700px;" border="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Line of interest (keV):<br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('295');">295</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('351');">351</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('609');">609</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('1120');">1120</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('1764');">1764</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('911');">911</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('969');">969</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('238');">238</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('511');">511</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('583');">583</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('2614');">2614</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('1461');">1461</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('1173');">1173</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('1332');">1332</a><br>
+      </td>
+      <td style="vertical-align: top;"><a
+ href="javascript:set_mcloi('661');">661</a><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Isotope:<br>
+      </td>
+      <td colspan="2" rowspan="1"
+ style="vertical-align: top; text-align: center;">Pb-214 </td>
+      <td colspan="3" rowspan="1"
+ style="vertical-align: top; text-align: center;">Bi-214 </td>
+      <td colspan="2" rowspan="1"
+ style="vertical-align: top; text-align: center;">Ac-228 </td>
+      <td style="vertical-align: top; text-align: center;">Pb-212<br>
+      </td>
+      <td colspan="3" rowspan="1"
+ style="vertical-align: top; text-align: center;">Tl-208</td>
+      <td style="vertical-align: top; text-align: center;">K-40<br>
+      </td>
+      <td colspan="2" rowspan="1"
+ style="vertical-align: top; text-align: center;">Co-60</td>
+      <td style="vertical-align: top; text-align: center;">Cs-137<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Chain:<br>
+      </td>
+      <td colspan="5" rowspan="1"
+ style="vertical-align: top; text-align: center;">U-238 chain<br>
+      </td>
+      <td colspan="6" rowspan="1"
+ style="vertical-align: top; text-align: center;">Th-232 chain<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Fig.
+5</span>: Fits to MC-simulated sample spectrum for the line of
+interest.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a
+ href="javascript:location.href='figs/mc_loi'+mc_loi_fit_fname+'_fit.png';"><img
+ src="figs/mc_loi295_fit.png" name="mcloifit"
+ style="width: 900px; height: 675px;" alt="wait"></a> </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h3>4. Contamination calculation results<br>
+</h3>
+With calculated peak detection ratio and knowing the mass of the sample
+we can convert rates summarized in Table 2 into the contamination.
+Results are summarized in Table 3. Contamination is graphically
+represented in Fig. 6.<br>
+<br>
+<span style="font-weight: bold;">Table 3:</span> Calculated peak
+detection ratio, contamination, and upper limit on the contamination
+(when applicable). <br>
+<object type="text/html" data="TABLE_Table_3.html" height="420"
+ width="100%">
+<p>Table 3</p>
+</object>
+<br>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Fig.
+6</span>: Calculated contamination for the sample; visual
+representation of the corresponding columns from Table 3.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><img
+ style="width: 900px; height: 675px;" alt="" src="figs/contamin.png"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<hr style="width: 100%; height: 2px;">
+<h3>Appendix A: Methodology for rate calculation</h3>
+<span style="font-weight: bold; font-style: italic;"></span><span
+ style="font-weight: bold; font-style: italic;"></span>Depending on the
+calculated number of total and background events for
+each line of interest summarized in Table 1, we use one of the three
+methods to calculate rate R(cts/sec) due to the sample contamination:<br>
+<br>
+1) If we don't have background spectrum, or suppose we don't want to
+use it, then it's simple:<br>
+<span style="font-weight: bold;">R=(St-Sb)/Ts with error=sqrt(St+Sb)/Ts.</span><br>
+where Ts - acquisition time for signal spectrum, Tb - for background.
+However, if the peak is due to the environmental background, then the
+rate will be severely overestimated.<br>
+<br>
+2) If baseline for the background in both, sample and background
+spectra, doesn't change much, then<br>
+<span style="font-weight: bold;">R=St/Ts-Bt/Tb with
+error=sqrt(St/Ts^2+Bt/Tb^2).</span><br>
+To check whether the baselines are consistent and this method can be
+applied, we calculate<br>
+&nbsp;Sb/Ts-Bb/Tb and check if it is within +/-sqrt(Sb/Ts^2+Bb/Tb^2).<br>
+If it be used for the case when background line got elevated in the
+sample spectrum, then the rate will be overestimated.<br>
+<br>
+3) If the background baseline is elevated in the sample spectrum
+comparing to the background spectrum, then<br>
+first check that there is a statistically significant peak in the
+background spectrum. If it's nonsignificant, then use method 1, else <br>
+<span style="font-weight: bold;">R=(St-Sb)/Ts-(Bt-Bb)/Tb with
+error=sqrt((St+Sb)/Ts^2+(Bt+Bb)/Tb^2).</span><span
+ style="font-weight: bold; font-style: italic;"></span><span
+ style="font-style: italic;"></span><span
+ style="font-weight: bold; font-style: italic;"></span><br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+</body>
+</html>
